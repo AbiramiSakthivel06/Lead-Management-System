@@ -4,10 +4,9 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Lead
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True, label="Email Address")
 
     class Meta(UserCreationForm.Meta):
-        fields = UserCreationForm.Meta.fields + ('email',)
+        fields = UserCreationForm.Meta.fields
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,13 +16,9 @@ class UserRegistrationForm(UserCreationForm):
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get('username')
-        email = cleaned_data.get('email')
 
         if username and User.objects.filter(username__iexact=username).exists():
-            raise forms.ValidationError('An account with this username or email already exists.')
-
-        if email and User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError('An account with this username or email already exists.')
+            raise forms.ValidationError('An account with this username already exists.')
 
         return cleaned_data
 
