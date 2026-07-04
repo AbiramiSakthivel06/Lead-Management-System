@@ -107,3 +107,6 @@ def lead_delete(request, pk):
         lead.delete()
         return redirect('dashboard')
     return render(request, 'leads/lead_confirm_delete.html', {'lead': lead})
+
+def csrf_failure(request, reason=""):
+    return redirect('dashboard' if request.user.is_authenticated else 'login')
