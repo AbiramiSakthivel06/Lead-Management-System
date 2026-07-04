@@ -1,0 +1,22 @@
+{
+  "name": "Lead Management System",
+  "short_name": "LeadManager",
+  "description": "A secure, multi-tenant lead tracker with dashboard metrics, visual analysis, and offline capability.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

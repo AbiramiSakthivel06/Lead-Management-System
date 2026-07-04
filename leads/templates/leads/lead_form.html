@@ -1,0 +1,102 @@
+{% extends 'leads/base.html' %}
+{% block title %}{{ title }} | Lead Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 16px;">
+      <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+        <h4 class="fw-bold m-0"><i class="fa-solid fa-user-pen me-2 text-primary"></i>{{ title }}</h4>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <form method="POST" novalidate>
+        {% csrf_token %}
+        
+        <div class="row g-3">
+          <!-- Company Name -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-muted small">{{ form.company_name.label }}</label>
+            {{ form.company_name }}
+            {% if form.company_name.errors %}
+              <div class="text-danger small mt-1">{{ form.company_name.errors.0 }}</div>
+            {% endif %}
+          </div>
+          
+          <!-- Contact Person -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-muted small">{{ form.contact_person.label }}</label>
+            {{ form.contact_person }}
+            {% if form.contact_person.errors %}
+              <div class="text-danger small mt-1">{{ form.contact_person.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Mobile Number -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-muted small">{{ form.mobile_number.label }}</label>
+            {{ form.mobile_number }}
+            {% if form.mobile_number.errors %}
+              <div class="text-danger small mt-1">{{ form.mobile_number.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Email ID -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-muted small">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Location -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-muted small">{{ form.location.label }}</label>
+            {{ form.location }}
+            {% if form.location.errors %}
+              <div class="text-danger small mt-1">{{ form.location.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Lead Source -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-muted small">{{ form.lead_source.label }}</label>
+            {{ form.lead_source }}
+            {% if form.lead_source.errors %}
+              <div class="text-danger small mt-1">{{ form.lead_source.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Status -->
+          <div class="col-md-12">
+            <label class="form-label fw-semibold text-muted small">{{ form.status.label }}</label>
+            {{ form.status }}
+            {% if form.status.errors %}
+              <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Notes -->
+          <div class="col-md-12">
+            <label class="form-label fw-semibold text-muted small">{{ form.notes.label }} (Optional)</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+              <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+          <a href="{% url 'dashboard' %}" class="btn btn-light px-4">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-primary-custom px-4">
+            Save Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

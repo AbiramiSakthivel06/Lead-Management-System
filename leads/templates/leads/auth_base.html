@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>{% block title %}Lead Management System{% endblock %}</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+
+  <!-- Typography & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Local Bootstrap 5 CSS -->
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+  
+  <!-- Custom Core Dashboard Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  {% block content %}{% endblock %}
+
+  <!-- Local Bootstrap Bundle JS -->
+  <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+  
+  <!-- Password Visibility Toggle script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const passwordFields = document.querySelectorAll('input[type="password"]');
+      passwordFields.forEach(field => {
+        // Create eye toggle icon and wrapper
+        const toggleBtn = document.createElement('span');
+        toggleBtn.className = 'input-group-text bg-light border-0';
+        toggleBtn.style.cursor = 'pointer';
+        toggleBtn.innerHTML = '<i class="fa-solid fa-eye text-muted"></i>';
+        
+        let parent = field.parentElement;
+        // If not already inside a Bootstrap input-group, create one
+        if (!parent || !parent.classList.contains('input-group')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'input-group';
+          if (parent) {
+            parent.insertBefore(wrapper, field);
+            wrapper.appendChild(field);
+            parent = wrapper;
+          }
+        }
+        
+        // Append button to input group
+        parent.appendChild(toggleBtn);
+        
+        // Setup click toggle logic
+        toggleBtn.addEventListener('click', function() {
+          const icon = toggleBtn.querySelector('i');
+          if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+          } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+          }
+        });
+      });
+    });
+  </script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('PWA Service Worker registered with scope: ', registration.scope);
+          })
+          .catch(error => {
+            console.warn('PWA Service Worker registration failed: ', error);
+          });
+      });
+    }
+  </script>
+  <!-- History override to prevent back button caching leaks -->
+  <script>
+    function preventBack() {
+        window.history.forward();
+    }
+    setTimeout("preventBack()", 0);
+    window.onunload = function () { null };
+  </script>
+</body>
+</html>

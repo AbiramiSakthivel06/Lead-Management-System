@@ -1,0 +1,300 @@
+{% extends 'leads/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Lead Management System{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <!-- Stats Card 1 -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card stat-card bg-white h-100 border-0 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">Total Leads</span>
+          <h2 class="fw-bold mt-1 mb-0">{{ total_leads }}</h2>
+        </div>
+        <div class="stat-card-icon bg-primary text-white" style="--bs-bg-opacity: 0.1; color: var(--accent-color) !important;">
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Stats Card 2 -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card stat-card bg-white h-100 border-0 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">New Leads</span>
+          <h2 class="fw-bold mt-1 mb-0 text-primary">{{ new_leads }}</h2>
+        </div>
+        <div class="stat-card-icon bg-info text-white" style="--bs-bg-opacity: 0.1; color: #0dcaf0 !important;">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Stats Card 3 -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card stat-card bg-white h-100 border-0 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">In Progress</span>
+          <h2 class="fw-bold mt-1 mb-0 text-warning">{{ in_progress }}</h2>
+        </div>
+        <div class="stat-card-icon bg-warning text-white" style="--bs-bg-opacity: 0.1; color: #ffc107 !important;">
+          <i class="fa-solid fa-spinner"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Stats Card 4 -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card stat-card bg-white h-100 border-0 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase">Closed Won</span>
+          <h2 class="fw-bold mt-1 mb-0 text-success">{{ closed_won }}</h2>
+        </div>
+        <div class="stat-card-icon bg-success text-white" style="--bs-bg-opacity: 0.1; color: #198754 !important;">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card border-0 p-4 shadow-sm" style="border-radius: 16px;">
+      <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Lead Status Breakdown</h5>
+      <div style="position: relative; height:250px;">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card border-0 p-4 shadow-sm" style="border-radius: 16px;">
+      <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-column me-2 text-success"></i>Lead Source Distribution</h5>
+      <div style="position: relative; height:250px;">
+        <canvas id="sourceChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filtering Box -->
+<div class="card border-0 p-4 shadow-sm mb-4" style="border-radius: 16px;">
+  <form method="GET" action="{% url 'dashboard' %}" class="row g-3 align-items-end">
+    <div class="col-lg-4 col-md-6">
+      <label class="form-label text-muted small fw-semibold">Search Keywords</label>
+      <div class="input-group">
+        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+        <input type="text" name="search" class="form-control bg-light border-0" placeholder="Company, contact name, email..." value="{{ search_query }}">
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+      <label class="form-label text-muted small fw-semibold">Filter by Status</label>
+      <select name="status" class="form-select bg-light border-0">
+        <option value="">All Statuses</option>
+        {% for val, label in status_choices %}
+          <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <label class="form-label text-muted small fw-semibold">Filter by Source</label>
+      <select name="source" class="form-select bg-light border-0">
+        <option value="">All Sources</option>
+        {% for val, label in source_choices %}
+          <option value="{{ val }}" {% if source_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-lg-2 col-md-6 d-flex gap-2">
+      <button type="submit" class="btn btn-primary btn-primary-custom w-100">
+        Filter
+      </button>
+      <a href="{% url 'dashboard' %}" class="btn btn-light bg-light w-100 border-0">
+        Clear
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Leads Listing Table -->
+<div class="table-custom">
+  <div class="p-4 bg-white d-flex align-items-center justify-content-between border-bottom">
+    <h5 class="fw-bold m-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>Lead Database</h5>
+    <a href="{% url 'lead_create' %}" class="btn btn-primary btn-primary-custom btn-sm d-flex align-items-center gap-2">
+      <i class="fa-solid fa-plus"></i> Add Lead
+    </a>
+  </div>
+  <div class="table-responsive">
+    <table class="table m-0">
+      <thead>
+        <tr>
+          <th>Company Name</th>
+          <th>Contact Person</th>
+          <th>Contact Info</th>
+          <th>Location</th>
+          <th>Lead Source</th>
+          <th>Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lead in leads %}
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">{{ lead.company_name }}</div>
+            <div class="text-muted small">Added: {{ lead.created_at|date:"M d, Y" }}</div>
+          </td>
+          <td>
+            <span class="fw-semibold text-secondary">{{ lead.contact_person }}</span>
+          </td>
+          <td>
+            <div><i class="fa-solid fa-envelope me-1 text-muted small"></i> {{ lead.email }}</div>
+            <div class="text-muted"><i class="fa-solid fa-phone me-1 text-muted small"></i> {{ lead.mobile_number }}</div>
+          </td>
+          <td>
+            <span class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> {{ lead.location }}</span>
+          </td>
+          <td>
+            <span class="badge bg-secondary opacity-75">{{ lead.get_lead_source_display }}</span>
+          </td>
+          <td>
+            {% if lead.status == 'New' %}
+              <span class="badge badge-status badge-new">New</span>
+            {% elif lead.status == 'Contacted' %}
+              <span class="badge badge-status badge-contacted">Contacted</span>
+            {% elif lead.status == 'In Progress' %}
+              <span class="badge badge-status badge-in_progress">In Progress</span>
+            {% elif lead.status == 'Closed Won' %}
+              <span class="badge badge-status badge-closed_won">Closed Won</span>
+            {% elif lead.status == 'Closed Lost' %}
+              <span class="badge badge-status badge-closed_lost">Closed Lost</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex justify-content-center gap-2">
+              <a href="{% url 'lead_update' lead.pk %}" class="btn btn-sm btn-outline-primary border-0" title="Edit Lead">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+              <a href="{% url 'lead_delete' lead.pk %}" class="btn btn-sm btn-outline-danger border-0" title="Delete Lead">
+                <i class="fa-solid fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-5">
+            <div class="text-muted mb-3"><i class="fa-solid fa-folder-open fa-3x"></i></div>
+            <h5 class="fw-bold">No Leads Found</h5>
+            <p class="text-muted small">Create some leads or adjust your filter query to display records.</p>
+            <a href="{% url 'lead_create' %}" class="btn btn-primary btn-primary-custom btn-sm mt-2">
+              Create Your First Lead
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Local Chart.js Script (Supports Offline PWA) -->
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+
+<script>
+  // Dynamic Chart values injected from Django views
+  const statusLabels = {{ status_labels_json|safe }};
+  const statusData = {{ status_data_json|safe }};
+  const sourceLabels = {{ source_labels_json|safe }};
+  const sourceData = {{ source_data_json|safe }};
+
+  // Modern HSL Tailored Color Palettes for premium aesthetics
+  const chartColors = [
+    '#3b82f6', // Blue
+    '#10b981', // Green/Emerald
+    '#f59e0b', // Yellow/Amber
+    '#ec4899', // Pink
+    '#8b5cf6', // Violet
+    '#ef4444'  // Red
+  ];
+
+  // 1. Status Doughnut Chart Setup
+  const ctxStatus = document.getElementById('statusChart').getContext('2d');
+  new Chart(ctxStatus, {
+    type: 'doughnut',
+    data: {
+      labels: statusLabels,
+      datasets: [{
+        data: statusData,
+        backgroundColor: chartColors.slice(0, statusLabels.length),
+        borderWidth: 2,
+        borderColor: '#ffffff',
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            usePointStyle: true,
+            boxWidth: 8,
+            font: { family: 'Outfit', size: 12 }
+          }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+
+  // 2. Source Bar Chart Setup
+  const ctxSource = document.getElementById('sourceChart').getContext('2d');
+  new Chart(ctxSource, {
+    type: 'bar',
+    data: {
+      labels: sourceLabels,
+      datasets: [{
+        label: 'Leads per Source',
+        data: sourceData,
+        backgroundColor: '#10b981',
+        borderRadius: 8,
+        barThickness: 20
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: 'Outfit', size: 11 } }
+        },
+        y: {
+          grid: { color: '#f1f5f9' },
+          ticks: { 
+            font: { family: 'Outfit', size: 11 },
+            stepSize: 1
+          },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}
